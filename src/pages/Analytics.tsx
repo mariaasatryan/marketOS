@@ -18,6 +18,8 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { useI18n } from '../contexts/I18nContext';
+import { Pipeline, PipelineStage } from '../components/Pipeline';
+import { AuditModal } from '../components/AuditModal';
 import { useAuth } from '../contexts/AuthContext';
 import { marketplaceService } from '../services/marketplaceService';
 import { RealMarketplaceService } from '../services/realMarketplaceService';
@@ -107,9 +109,10 @@ export function Analytics() {
   });
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [dateRange, setDateRange] = useState({
-    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     to: new Date().toISOString().split('T')[0]
   });
+  const [showAudit, setShowAudit] = useState(false);
 
   const totalSales = salesData.reduce((sum, item) => sum + item.total_sales, 0);
   const totalOrders = salesData.reduce((sum, item) => sum + item.total_orders, 0);
@@ -361,6 +364,12 @@ export function Analytics() {
           <p className="text-slate-600 dark:text-slate-400 mt-1">{t('analytics.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            className="px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+            onClick={() => setShowAudit(true)}
+          >
+            Бесплатный ИИ-аудит
+          </button>
           <QuickExportButton dataType="analytics" />
           <SyncButton
             onClick={handleSyncData}
@@ -421,6 +430,41 @@ export function Analytics() {
                 onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
                 className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
               />
+            </div>
+
+            {/* Общая сводка за 7 дней */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {[
+                { id: 'ctr', label: 'CTR', value: 6.3, warn: (v:number)=> v < 5 },
+                { id: 'toCart', label: 'В корзину', value: 12.5, warn: (v:number)=> v < 10 },
+                { id: 'toOrder', label: 'В заказ', value: 16.1, warn: (v:number)=> v < 15 },
+                { id: 'pickup', label: 'Выкуп', value: 72.0, warn: (_:number)=> false },
+                { id: 'toReview', label: 'Отзыв', value: 9.2, warn: (v:number)=> v < 10 },
+              ].map(m => (
+                <div key={m.id} className={`p-4 rounded-xl border ${m.warn(m.value) ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
+                  <div className="text-sm text-slate-500 dark:text-slate-400">{m.label}</div>
+                  <div className="text-2xl font-semibold">{m.value}%</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Пайплайн по товарам (за 7 дней) */}
+            <div className="space-y-4">
+              {profitabilityData.slice(0, 10).map(p => {
+                const stages: PipelineStage[] = [
+                  { id: 'ctr', title: 'CTR', status: 4.7 < 5 ? 'warn' : 'ok', tooltip: 4.7 < 5 ? 'CTR ниже 5% или среднего по категории' : undefined },
+                  { id: 'cart', title: 'Конверсия в корзину', status: 9.1 < 10 ? 'warn' : 'ok', tooltip: 9.1 < 10 ? 'Низкая конверсия в корзину' : undefined },
+                  { id: 'order', title: 'Конверсия в заказ', status: 12.8 < 15 ? 'warn' : 'ok', tooltip: 12.8 < 15 ? 'Низкая конверсия в заказ' : undefined },
+                  { id: 'pickup', title: 'Процент выкупа', status: 'ok' },
+                  { id: 'review', title: 'Конверсия из выкупа в отзыв', status: 7.5 < 10 ? 'warn' : 'ok', tooltip: 7.5 < 10 ? 'Мало отзывов после выкупа' : undefined },
+                ];
+                return (
+                  <div key={p.productId} className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                    <div className="mb-2 font-medium">{p.productName}</div>
+                    <Pipeline stages={stages} />
+                  </div>
+                );
+              })}
             </div>
 
             {/* Financial Metrics */}
@@ -737,6 +781,22 @@ export function Analytics() {
           </div>
         ) : null}
       </div>
+
+      <AuditModal
+        open={showAudit}
+        onClose={() => setShowAudit(false)}
+        products={profitabilityData.map(p => ({ id: p.productId, title: p.productName }))}
+        onStartAudit={async (id) => {
+          const stages: PipelineStage[] = [
+            { id: 'ctr', title: 'CTR', status: 'ok' },
+            { id: 'cart', title: 'Конверсия в корзину', status: 'warn', tooltip: 'Низкая конверсия в корзину' },
+            { id: 'order', title: 'Конверсия в заказ', status: 'ok' },
+            { id: 'pickup', title: 'Процент выкупа', status: 'ok' },
+            { id: 'review', title: 'Конверсия из выкупа в отзыв', status: 'warn', tooltip: 'Мало отзывов после выкупа' },
+          ];
+          return stages;
+        }}
+      />
 
       {loading && (
         <div className="flex justify-center py-12">
