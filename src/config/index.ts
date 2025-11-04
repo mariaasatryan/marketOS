@@ -36,7 +36,6 @@ export const config = {
   },
   google: {
     clientId: getEnv('VITE_GOOGLE_OAUTH_CLIENT_ID'),
-    clientSecret: getEnv('VITE_GOOGLE_OAUTH_CLIENT_SECRET'),
     redirectUri: getEnv('VITE_GOOGLE_REDIRECT_URI', typeof window !== 'undefined' ? `${window.location.origin}/auth/google/callback` : '/auth/google/callback'),
   },
   ai: {

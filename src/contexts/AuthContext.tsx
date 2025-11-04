@@ -269,7 +269,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      console.log('🔧 Starting Google OAuth with Client ID:', envConfig.VITE_GOOGLE_OAUTH_CLIENT_ID);
       
       // Проверяем, настроен ли Google OAuth
       if (!envConfig.VITE_GOOGLE_OAUTH_CLIENT_ID) {

@@ -9,7 +9,6 @@ interface EnvConfig {
   VITE_CACHE_TTL: number;
   VITE_GOOGLE_OAUTH_CLIENT_ID: string;
   VITE_GOOGLE_REDIRECT_URI: string;
-  VITE_GOOGLE_OAUTH_CLIENT_SECRET: string;
   VITE_FEATURE_CALENDAR_AUTO_REMINDER: string;
   VITE_FEATURE_SHEETS_PREVIEW: string;
   VITE_FEATURE_ADS_MODULE: string;
@@ -40,9 +39,8 @@ export function validateEnvironment(): EnvConfig {
     VITE_API_RETRY_DELAY: 1000,
     VITE_API_TIMEOUT: 30000,
     VITE_CACHE_TTL: 300000,
-    VITE_GOOGLE_OAUTH_CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID',
-    VITE_GOOGLE_REDIRECT_URI: 'https://mariaasatryan.github.io/MarketOS/',
-    VITE_GOOGLE_OAUTH_CLIENT_SECRET: 'YOUR_GOOGLE_CLIENT_SECRET',
+    VITE_GOOGLE_OAUTH_CLIENT_ID: '',
+    VITE_GOOGLE_REDIRECT_URI: (typeof window !== 'undefined' ? window.location.origin : '') + '/MarketOS/',
     VITE_FEATURE_CALENDAR_AUTO_REMINDER: 'true',
     VITE_FEATURE_SHEETS_PREVIEW: 'true',
     VITE_FEATURE_ADS_MODULE: 'true',
@@ -57,11 +55,7 @@ export function validateEnvironment(): EnvConfig {
     VITE_AI_MODEL: 'gpt-4',
   };
 
-  // Debug: Log environment variables
-  console.log('🔧 Environment variables debug:');
-  console.log('VITE_GOOGLE_OAUTH_CLIENT_ID from import.meta.env:', import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID);
-  console.log('VITE_GOOGLE_REDIRECT_URI from import.meta.env:', import.meta.env.VITE_GOOGLE_REDIRECT_URI);
-  console.log('All import.meta.env:', import.meta.env);
+  // Do not log environment variables in production build
 
   // Override with environment variables if available
   if (import.meta.env.VITE_SUPABASE_URL) {
@@ -74,18 +68,13 @@ export function validateEnvironment(): EnvConfig {
     config.VITE_APP_MODE = import.meta.env.VITE_APP_MODE as 'MOCK' | 'LIVE';
   }
   if (import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID) {
-    config.VITE_GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID;
+    config.VITE_GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID as string;
   }
   if (import.meta.env.VITE_GOOGLE_REDIRECT_URI) {
-    config.VITE_GOOGLE_REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
-  }
-  if (import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_SECRET) {
-    config.VITE_GOOGLE_OAUTH_CLIENT_SECRET = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_SECRET;
+    config.VITE_GOOGLE_REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URI as string;
   }
 
-  console.log('🔧 Final config:');
-  console.log('VITE_GOOGLE_OAUTH_CLIENT_ID:', config.VITE_GOOGLE_OAUTH_CLIENT_ID);
-  console.log('VITE_GOOGLE_REDIRECT_URI:', config.VITE_GOOGLE_REDIRECT_URI);
+  // Do not log final config
 
   return config;
 }
