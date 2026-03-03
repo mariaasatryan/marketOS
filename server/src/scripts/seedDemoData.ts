@@ -54,6 +54,10 @@ export class DemoDataSeeder {
   }
 
   private async createTestUser() {
+    // Note: For production, use Supabase Auth API to create users
+    // This is only for development/testing with Prisma User model
+    // In production, users should be created through Supabase Auth
+    // and passwordHash should be generated using bcrypt or Argon2
     return await this.prisma.user.upsert({
       where: { email: 'demo@marketos.com' },
       update: {},
@@ -61,7 +65,9 @@ export class DemoDataSeeder {
         email: 'demo@marketos.com',
         name: 'Demo User',
         role: 'ADMIN',
-        passwordHash: 'demo_password_hash'
+        // SECURITY: In production, generate passwordHash using bcrypt/Argon2
+        // For now, this is a placeholder - actual auth should go through Supabase
+        passwordHash: process.env.DEMO_USER_PASSWORD_HASH || 'CHANGE_THIS_IN_PRODUCTION'
       }
     });
   }

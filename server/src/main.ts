@@ -1,4 +1,6 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit';
 import { PrismaClient } from '@prisma/client';
 import { analyticsRoutes } from './routes/analytics';
 import { TelegramBot } from './bot/telegramBot';
@@ -9,6 +11,20 @@ const fastify = Fastify({
 });
 
 const prisma = new PrismaClient();
+
+// Register CORS - only allow frontend domain
+fastify.register(cors, {
+  origin: process.env.FRONTEND_URL || 'https://mariaasatryan.github.io',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
+});
+
+// Register Rate Limiting
+fastify.register(rateLimit, {
+  max: 100, // maximum number of requests
+  timeWindow: '1 minute' // per time window
+});
 
 // Регистрация маршрутов
 fastify.register(analyticsRoutes, { prefix: '/api/analytics' });

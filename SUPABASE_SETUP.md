@@ -4,14 +4,14 @@
 
 ### Клиентское приложение (React)
 - **URL**: `https://ypmrhqltmkuorwcynyrv.supabase.co`
-- **Anon Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwbXJocWx0bWt1b3J3Y3lueXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY5NzQ4MDAsImV4cCI6MjA1MjU1MDgwMH0.placeholder_key`
+- **Anon Key**: См. в панели Supabase (Settings → API → anon public key)
 
 ### База данных (PostgreSQL)
 - **Host**: `db.ypmrhqltmkuorwcynyrv.supabase.co`
 - **Port**: `5432`
 - **Database**: `postgres`
 - **Username**: `postgres`
-- **Password**: `maryJan12!marketOS`
+- **Password**: Используйте переменную окружения `DATABASE_URL` (не храните пароль в коде!)
 
 ## Настройка переменных окружения
 
@@ -20,10 +20,12 @@
 ```env
 # Supabase Configuration
 VITE_SUPABASE_URL=https://ypmrhqltmkuorwcynyrv.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwbXJocWx0bWt1b3J3Y3lueXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY5NzQ4MDAsImV4cCI6MjA1MjU1MDgwMH0.placeholder_key
+VITE_SUPABASE_ANON_KEY=ваш_anon_key_из_supabase_dashboard
 
 # Database Connection (for server-side use only)
-DATABASE_URL=postgresql://postgres:maryJan12!marketOS@db.ypmrhqltmkuorwcynyrv.supabase.co:5432/postgres
+# ВАЖНО: Используйте переменную окружения, не храните пароль в коде!
+# Получите DATABASE_URL из Supabase Dashboard → Settings → Database → Connection string
+DATABASE_URL=postgresql://postgres:[YOUR_PASSWORD]@db.ypmrhqltmkuorwcynyrv.supabase.co:5432/postgres
 
 # App Configuration
 VITE_APP_MODE=LIVE

@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { AnalyticsService } from '../services/analyticsService';
 import { ETLService } from '../services/etlService';
 import { Marketplace } from '@prisma/client';
+import { authenticateUser, AuthenticatedRequest } from '../middleware/auth';
 
 export async function analyticsRoutes(fastify: FastifyInstance) {
   const prisma = new PrismaClient();
@@ -10,16 +11,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   const etlService = new ETLService(prisma);
 
   // Middleware для проверки аутентификации
-  fastify.addHook('preHandler', async (request, reply) => {
-    // Здесь должна быть проверка JWT токена
-    // Пока что используем заглушку
-    const userId = request.headers['x-user-id'] as string;
-    if (!userId) {
-      reply.code(401).send({ error: 'Unauthorized' });
-      return;
-    }
-    (request as any).userId = userId;
-  });
+  fastify.addHook('preHandler', authenticateUser);
 
   // GET /kpi - получение KPI данных
   fastify.get('/kpi', async (request, reply) => {
@@ -33,8 +25,14 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
       const fromDate = from ? new Date(from) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const toDate = to ? new Date(to) : new Date();
 
+      const userId = (request as AuthenticatedRequest).userId;
+      if (!userId) {
+        reply.code(401).send({ error: 'User ID not found' });
+        return;
+      }
+
       const kpiData = await analyticsService.getKPIData(
-        (request as any).userId,
+        userId,
         fromDate,
         toDate,
         marketplace
