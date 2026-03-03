@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "@supabase/supabase-js": "^2.39.0",
     "fastify": "^4.24.3",
     "telegraf": "^4.15.6",
     "node-cron": "^3.0.3",
