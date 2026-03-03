@@ -10,8 +10,8 @@ export interface AutomationTask {
   startedAt?: Date;
   completedAt?: Date;
   error?: string;
-  data?: any;
-  result?: any;
+  data?: unknown;
+  result?: unknown;
 }
 
 export interface AutomationConfig {
@@ -157,7 +157,7 @@ class AutomationEngine {
     this.tasks.set(task.id, updatedTask);
 
     try {
-      let result;
+      let result: unknown;
       
       switch (task.type) {
         case 'product_sync':
@@ -203,59 +203,66 @@ class AutomationEngine {
     }
   }
 
-  private async executeProductSync(task: AutomationTask): Promise<any> {
+  private async executeProductSync(task: AutomationTask): Promise<{ taskId: string; syncedProducts: number; timestamp: string }> {
     // Синхронизация товаров между маркетплейсами
     const integrations = await marketplaceService.listIntegrations();
     const products = await RealMarketplaceService.getRealProductsData(integrations);
     
     // Здесь будет логика синхронизации
     return {
+      taskId: task.id,
       syncedProducts: products.length,
       timestamp: new Date().toISOString()
     };
   }
 
-  private async executePriceOptimization(task: AutomationTask): Promise<any> {
+  private async executePriceOptimization(task: AutomationTask): Promise<{ taskId: string; connectedIntegrations: number; optimizedPrices: number; timestamp: string }> {
     // Оптимизация цен на основе анализа конкурентов
     const integrations = await marketplaceService.listIntegrations();
     
     // Здесь будет логика оптимизации цен
     return {
+      taskId: task.id,
+      connectedIntegrations: integrations.length,
       optimizedPrices: 0,
       timestamp: new Date().toISOString()
     };
   }
 
-  private async executeAnalytics(task: AutomationTask): Promise<any> {
+  private async executeAnalytics(task: AutomationTask): Promise<{ taskId: string; analyticsData: Awaited<ReturnType<typeof RealMarketplaceService.getRealKPIData>>; timestamp: string }> {
     // Сбор и анализ данных
     const integrations = await marketplaceService.listIntegrations();
     const kpiData = await RealMarketplaceService.getRealKPIData(integrations);
     
     return {
+      taskId: task.id,
       analyticsData: kpiData,
       timestamp: new Date().toISOString()
     };
   }
 
-  private async executeAdvertising(task: AutomationTask): Promise<any> {
+  private async executeAdvertising(task: AutomationTask): Promise<{ taskId: string; optimizedCampaigns: number; timestamp: string }> {
     // Оптимизация рекламных кампаний
     return {
+      taskId: task.id,
       optimizedCampaigns: 0,
       timestamp: new Date().toISOString()
     };
   }
 
-  private async executeReviews(task: AutomationTask): Promise<any> {
+  private async executeReviews(task: AutomationTask): Promise<{ taskId: string; processedReviews: number; timestamp: string }> {
     // Обработка отзывов
     return {
+      taskId: task.id,
       processedReviews: 0,
       timestamp: new Date().toISOString()
     };
   }
 
-  private async executeOrders(task: AutomationTask): Promise<any> {
+  private async executeOrders(task: AutomationTask): Promise<{ taskId: string; processedOrders: number; timestamp: string }> {
     // Обработка заказов
     return {
+      taskId: task.id,
       processedOrders: 0,
       timestamp: new Date().toISOString()
     };

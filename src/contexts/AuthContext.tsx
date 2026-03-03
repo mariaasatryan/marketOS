@@ -3,7 +3,6 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { Marketplace } from '../types';
 import { marketplacePreferencesService } from '../services/marketplacePreferencesService';
-import { envConfig } from '../utils/env';
 
 interface AuthError {
   message: string;
@@ -21,11 +20,42 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function formatAuthError(error: unknown, fallbackMessage: string, fallbackCode: string): AuthError {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      code: fallbackCode,
+    };
+  }
+
+  return {
+    message: fallbackMessage,
+    code: fallbackCode,
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const syncUserProfile = async (currentUser: User) => {
+      try {
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          id: currentUser.id,
+          email: currentUser.email || '',
+          full_name: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || 'Google User',
+          role: 'owner',
+        });
+
+        if (profileError) {
+          console.warn('Could not create/update profile:', profileError);
+        }
+      } catch (profileError) {
+        console.warn('Profile creation error:', profileError);
+      }
+    };
+
     const initializeAuth = async () => {
       try {
         // Проверяем URL на наличие OAuth callback параметров
@@ -33,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const hasAuthCode = urlParams.get('code') || urlParams.get('access_token');
         
         if (hasAuthCode) {
-          console.log('🔄 OAuth callback detected, processing...');
+          console.log('OAuth callback detected, processing...');
         }
 
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -45,28 +75,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         if (session?.user) {
-          console.log('✅ User session found:', session.user.email);
+          console.log('User session found:', session.user.email);
           setUser(session.user);
-          
-          // Создаем профиль пользователя если его нет
-          try {
-            const { error: profileError } = await supabase.from('profiles').upsert({
-              id: session.user.id,
-              email: session.user.email || '',
-              full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Google User',
-              role: 'owner',
-            });
-            
-            if (profileError) {
-              console.warn('⚠️ Could not create/update profile:', profileError);
-            } else {
-              console.log('✅ Profile created/updated successfully');
-            }
-          } catch (profileError) {
-            console.warn('⚠️ Profile creation error:', profileError);
-          }
+          await syncUserProfile(session.user);
         } else {
-          console.log('ℹ️ No active session found');
+          console.log('No active session found');
         }
         
         setLoading(false);
@@ -77,38 +90,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    initializeAuth();
+    void initializeAuth();
 
     try {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('🔄 Auth state changed:', event, session?.user?.email);
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('✅ User signed in:', session.user.email);
+          console.log('User signed in:', session.user.email);
           setUser(session.user);
-          
-          // Создаем профиль пользователя если его нет
-          try {
-            const { error: profileError } = await supabase.from('profiles').upsert({
-              id: session.user.id,
-              email: session.user.email || '',
-              full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Google User',
-              role: 'owner',
-            });
-            
-            if (profileError) {
-              console.warn('⚠️ Could not create/update profile:', profileError);
-            } else {
-              console.log('✅ Profile created/updated successfully');
-            }
-          } catch (profileError) {
-            console.warn('⚠️ Profile creation error:', profileError);
-          }
+          void syncUserProfile(session.user);
         } else if (event === 'SIGNED_OUT') {
-          console.log('👋 User signed out');
+          console.log('User signed out');
           setUser(null);
         } else if (event === 'TOKEN_REFRESHED') {
-          console.log('🔄 Token refreshed for:', session?.user?.email);
+          console.log('Token refreshed for:', session?.user?.email);
           if (session?.user) {
             setUser(session.user);
           }
@@ -127,13 +123,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('🔐 Attempting to sign in with Supabase...');
+      console.log('Attempting to sign in with Supabase...');
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
-        console.error('❌ Supabase sign in error:', error);
+        console.error('Supabase sign in error:', error);
         // Fallback to mock auth for demo
-        console.log('🔄 Falling back to mock authentication...');
+        console.log('Falling back to mock authentication...');
         const mockUser = {
           id: 'mock-user-id',
           email,
@@ -152,13 +148,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       if (data.user) {
-        console.log('✅ Sign in successful:', data.user.email);
+        console.log('Sign in successful:', data.user.email);
         return { error: null };
       }
       
       return { error: { message: 'Unknown error', code: 'UNKNOWN_ERROR' } };
-    } catch (error: any) {
-      console.error('❌ Sign in exception:', error);
+    } catch (error: unknown) {
+      console.error('Sign in exception:', error);
       // Мок-авторизация для демонстрации
       const mockUser = {
         id: 'mock-user-id',
@@ -180,16 +176,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName: string, selectedMarketplaces: Marketplace[] = []) => {
     try {
-      console.log('📝 Attempting to sign up with Supabase...');
+      console.log('Attempting to sign up with Supabase...');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) {
-        console.error('❌ Supabase sign up error:', error);
+        console.error('Supabase sign up error:', error);
         // Fallback to mock auth for demo
-        console.log('🔄 Falling back to mock registration...');
+        console.log('Falling back to mock registration...');
         const mockUser = {
           id: 'mock-user-id-' + Date.now(),
           email,
@@ -214,7 +210,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!error && data.user) {
-        console.log('✅ Sign up successful:', data.user.email);
+        console.log('Sign up successful:', data.user.email);
         
         try {
           await supabase.from('profiles').insert({
@@ -240,8 +236,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return { error: { message: 'Unknown error', code: 'UNKNOWN_ERROR' } };
-    } catch (error: any) {
-      console.error('❌ Sign up exception:', error);
+    } catch (error: unknown) {
+      console.error('Sign up exception:', error);
       // Мок-регистрация для демонстрации
       const mockUser = {
         id: 'mock-user-id-' + Date.now(),
@@ -269,14 +265,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      
-      // Проверяем, настроен ли Google OAuth
       if (!envConfig.VITE_GOOGLE_OAUTH_CLIENT_ID) {
-        throw new Error('Google OAuth Client ID не настроен. Проверьте переменные окружения.');
+        return {
+          error: {
+            message: 'Google OAuth Client ID не настроен. Проверьте переменные окружения.',
+            code: 'GOOGLE_AUTH_DISABLED',
+          },
+        };
       }
 
-      // Реальная авторизация через Google
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: envConfig.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/auth/google/callback`,
@@ -288,21 +286,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        console.error('Google OAuth error:', error);
         throw error;
       }
 
-      console.log('✅ Google OAuth initiated successfully:', data);
-      
-      // Не возвращаем ошибку, так как OAuth редиректит пользователя
       return { error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Google OAuth error:', error);
-      return { 
-        error: { 
-          message: error.message || 'Ошибка входа через Google', 
-          code: error.code || 'GOOGLE_AUTH_ERROR' 
-        } 
+      return {
+        error: formatAuthError(error, 'Ошибка входа через Google', 'GOOGLE_AUTH_ERROR'),
       };
     }
   };

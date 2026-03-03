@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { User } from '@supabase/supabase-js';
 import { Marketplace } from '../types';
 
 export interface MarketplacePreference {
@@ -77,7 +78,7 @@ class MarketplacePreferencesService {
   // Обновление предпочтений при регистрации
   async setInitialPreferences(marketplaces: Marketplace[], userId?: string): Promise<void> {
     try {
-      let user;
+      let user: Pick<User, 'id'> | null = null;
       
       if (userId) {
         user = { id: userId };
@@ -88,7 +89,9 @@ class MarketplacePreferencesService {
       
       if (!user) {
         // Если пользователь не авторизован, просто сохраняем в localStorage
-        localStorage.setItem('user_marketplace_preferences', JSON.stringify(marketplaces));
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user_marketplace_preferences', JSON.stringify(marketplaces));
+        }
         return;
       }
 
@@ -107,11 +110,15 @@ class MarketplacePreferencesService {
       }
 
       // Также сохраняем в localStorage
-      localStorage.setItem('user_marketplace_preferences', JSON.stringify(marketplaces));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user_marketplace_preferences', JSON.stringify(marketplaces));
+      }
     } catch (error) {
       console.error('Ошибка установки начальных предпочтений:', error);
       // Fallback на localStorage
-      localStorage.setItem('user_marketplace_preferences', JSON.stringify(marketplaces));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user_marketplace_preferences', JSON.stringify(marketplaces));
+      }
     }
   }
 
@@ -136,7 +143,9 @@ class MarketplacePreferencesService {
     } catch (error) {
       console.error('Ошибка загрузки статуса маркетплейсов:', error);
       // Fallback на localStorage
-      const saved = localStorage.getItem('user_marketplace_preferences');
+      const saved = typeof window !== 'undefined'
+        ? localStorage.getItem('user_marketplace_preferences')
+        : null;
       const selected = saved ? JSON.parse(saved) : [];
       
       const allMarketplaces: Marketplace[] = ['wildberries', 'ozon', 'ym', 'smm'];
