@@ -33,7 +33,7 @@ export class TelegramBot {
       if (user) {
         await ctx.reply(
           `Привет, ${user.User.name || 'пользователь'}! 👋\n\n` +
-          `Я бот MarketOS - ваш помощник по аналитике маркетплейсов.\n\n` +
+          `Я бот marketOS - ваш помощник по аналитике маркетплейсов.\n\n` +
           `Доступные команды:\n` +
           `/kpi_today - KPI за сегодня\n` +
           `/top_loss - Топ убыточных товаров\n` +
@@ -45,7 +45,7 @@ export class TelegramBot {
       } else {
         await ctx.reply(
           'Привет! 👋\n\n' +
-          'Для использования бота необходимо авторизоваться в системе MarketOS.\n' +
+          'Для использования бота необходимо авторизоваться в системе marketOS.\n' +
           'Пожалуйста, перейдите в настройки приложения и привяжите Telegram аккаунт.'
         );
       }
@@ -54,7 +54,7 @@ export class TelegramBot {
     // Команда /help
     this.bot.help(async (ctx) => {
       await ctx.reply(
-        '📊 MarketOS Bot - Команды:\n\n' +
+        '📊 marketOS Bot - Команды:\n\n' +
         '/kpi_today - Основные показатели за сегодня\n' +
         '/top_loss - Товары с наибольшими потерями\n' +
         '/dead_stock - Замороженные товары\n' +

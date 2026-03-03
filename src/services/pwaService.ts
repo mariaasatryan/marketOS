@@ -91,7 +91,7 @@ export class PWAService {
   // Offline storage management
   private async setupOfflineStorage(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('MarketOSOffline', 1);
+      const request = indexedDB.open('marketOSOffline', 1);
 
       request.onerror = () => {
         console.error('Failed to open IndexedDB');
@@ -127,7 +127,7 @@ export class PWAService {
   // Store data for offline use
   public async storeOfflineData(key: string, data: any, type: string = 'general'): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('MarketOSOffline', 1);
+      const request = indexedDB.open('marketOSOffline', 1);
 
       request.onsuccess = () => {
         const db = request.result;
@@ -154,7 +154,7 @@ export class PWAService {
   // Retrieve offline data
   public async getOfflineData(key: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('MarketOSOffline', 1);
+      const request = indexedDB.open('marketOSOffline', 1);
 
       request.onsuccess = () => {
         const db = request.result;

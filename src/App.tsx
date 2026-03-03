@@ -55,7 +55,7 @@ function AppContent() {
         // Show welcome notification
         notificationService.addNotification({
           type: 'info',
-          title: 'Добро пожаловать в MarketOS!',
+          title: 'Добро пожаловать в marketOS!',
           message: 'Система уведомлений активирована. Вы будете получать важные обновления.',
           priority: 'low',
           category: 'system'

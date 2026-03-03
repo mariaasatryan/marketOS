@@ -140,7 +140,7 @@ self.addEventListener('push', (event) => {
   console.log('Service Worker: Push notification received');
   
   const options = {
-    body: event.data ? event.data.text() : 'Новое уведомление от MarketOS',
+    body: event.data ? event.data.text() : 'Новое уведомление от marketOS',
     icon: '/images/marketos-logo.png',
     badge: '/images/marketos-logo.png',
     vibrate: [200, 100, 200],
@@ -163,7 +163,7 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('MarketOS', options)
+    self.registration.showNotification('marketOS', options)
   );
 });
 
@@ -210,7 +210,7 @@ async function handleBackgroundSync() {
 // Get pending actions from IndexedDB
 async function getPendingActions() {
   return new Promise((resolve) => {
-    const request = indexedDB.open('MarketOSOffline', 1);
+    const request = indexedDB.open('marketOSOffline', 1);
     
     request.onsuccess = (event) => {
       const db = event.target.result;
@@ -251,7 +251,7 @@ async function processOfflineAction(action) {
 // Remove pending action from IndexedDB
 async function removePendingAction(actionId) {
   return new Promise((resolve) => {
-    const request = indexedDB.open('MarketOSOffline', 1);
+    const request = indexedDB.open('marketOSOffline', 1);
     
     request.onsuccess = (event) => {
       const db = event.target.result;

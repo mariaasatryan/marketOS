@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "MarketOS",
+    "title": "marketOS",
     "subtitle": "Marketplace Management",
     "tagline": "Your AI Manager"
   },
@@ -36,8 +36,8 @@
     "passwordMinLength": "Password must contain at least 6 characters",
     "passwordsDoNotMatch": "Passwords do not match",
     "selectMarketplace": "Select at least one marketplace",
-    "registrationSuccess": "Registration successful! Welcome to MarketOS!",
-    "loginSuccess": "Login successful! Welcome to MarketOS!"
+    "registrationSuccess": "Registration successful! Welcome to marketOS!",
+    "loginSuccess": "Login successful! Welcome to marketOS!"
   },
   "marketplaces": {
     "wildberries": "Wildberries",

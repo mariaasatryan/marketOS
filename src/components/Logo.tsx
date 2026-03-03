@@ -16,7 +16,7 @@ export function Logo({ className = '', showText = true }: LogoProps) {
       <div className="w-10 h-10 flex items-center justify-center">
         <img
           src={`${logoImage}?v=${Date.now()}`}
-          alt="MarketOS Logo"
+          alt="marketOS Logo"
           className="w-full h-full object-contain"
           onError={(e) => {
             // Fallback to inline SVG if image fails to load
@@ -42,7 +42,7 @@ export function Logo({ className = '', showText = true }: LogoProps) {
       {showText && (
         <div className="flex flex-col">
           <span className="text-2xl font-bold text-red-600 leading-tight">
-            MarketOS
+            marketOS
           </span>
           <span className="text-xs text-slate-500 font-medium">
             {t('app.tagline')}

@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "MarketOS",
+    "title": "marketOS",
     "subtitle": "Управление маркетплейсами",
     "tagline": "Виртуальный менеджер"
   },
@@ -36,8 +36,8 @@
     "passwordMinLength": "Пароль должен содержать минимум 6 символов",
     "passwordsDoNotMatch": "Пароли не совпадают",
     "selectMarketplace": "Выберите хотя бы один маркетплейс",
-    "registrationSuccess": "Регистрация прошла успешно! Добро пожаловать в MarketOS!",
-    "loginSuccess": "Вход выполнен успешно! Добро пожаловать в MarketOS!"
+    "registrationSuccess": "Регистрация прошла успешно! Добро пожаловать в marketOS!",
+    "loginSuccess": "Вход выполнен успешно! Добро пожаловать в marketOS!"
   },
   "marketplaces": {
     "wildberries": "Wildberries",

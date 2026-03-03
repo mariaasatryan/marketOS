@@ -43,7 +43,7 @@ class GPTService {
       }
     }).join(', ');
 
-    return `Ты - MarketOS GPT, эксперт по российским маркетплейсам. Твоя специализация: ${marketplaceNames}.
+    return `Ты - marketOS GPT, эксперт по российским маркетплейсам. Твоя специализация: ${marketplaceNames}.
 
 Ты помогаешь селлерам с:
 - Оптимизацией карточек товаров

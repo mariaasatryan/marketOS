@@ -13,8 +13,12 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string, fullName: string, selectedMarketplaces?: Marketplace[]) => Promise<{ error: AuthError | null }>;
-  signInWithGoogle: () => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+    selectedMarketplaces?: Marketplace[]
+  ) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -263,41 +267,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      if (!envConfig.VITE_GOOGLE_OAUTH_CLIENT_ID) {
-        return {
-          error: {
-            message: 'Google OAuth Client ID не настроен. Проверьте переменные окружения.',
-            code: 'GOOGLE_AUTH_DISABLED',
-          },
-        };
-      }
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: envConfig.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/auth/google/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      return { error: null };
-    } catch (error: unknown) {
-      console.error('Google OAuth error:', error);
-      return {
-        error: formatAuthError(error, 'Ошибка входа через Google', 'GOOGLE_AUTH_ERROR'),
-      };
-    }
-  };
-
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -308,7 +277,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
