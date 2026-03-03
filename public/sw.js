@@ -2,13 +2,15 @@ const CACHE_NAME = 'marketos-v1';
 const STATIC_CACHE_NAME = 'marketos-static-v1';
 const DYNAMIC_CACHE_NAME = 'marketos-dynamic-v1';
 
+// Base path for GitHub Pages (e.g. /marketOS when served at username.github.io/marketOS/)
+const BASE = self.location.pathname.replace(/\/[^/]*$/, '') || '';
+
 // Files to cache for offline functionality
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/images/marketos-logo.png',
-  // Add other critical static files
+  BASE + '/',
+  BASE + '/index.html',
+  BASE + '/manifest.json',
+  BASE + '/images/marketos-logo.png',
 ];
 
 // API endpoints that should be cached
@@ -113,7 +115,7 @@ self.addEventListener('fetch', (event) => {
             
             // Return offline page for navigation requests
             if (request.mode === 'navigate') {
-              return caches.match('/index.html');
+              return caches.match(BASE + '/index.html');
             }
             
             // Return cached version if available for other requests
@@ -141,8 +143,8 @@ self.addEventListener('push', (event) => {
   
   const options = {
     body: event.data ? event.data.text() : 'Новое уведомление от marketOS',
-    icon: '/images/marketos-logo.png',
-    badge: '/images/marketos-logo.png',
+    icon: BASE + '/images/marketos-logo.png',
+    badge: BASE + '/images/marketos-logo.png',
     vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
@@ -175,7 +177,7 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'explore') {
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(BASE ? BASE + '/' : '/')
     );
   } else if (event.action === 'close') {
     // Just close the notification
@@ -183,7 +185,7 @@ self.addEventListener('notificationclick', (event) => {
   } else {
     // Default action - open the app
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(BASE ? BASE + '/' : '/')
     );
   }
 });

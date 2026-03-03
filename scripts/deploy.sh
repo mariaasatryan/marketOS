@@ -14,7 +14,10 @@ fi
 
 # Copy to docs directory
 echo "📁 Copying files to docs..."
+mkdir -p docs
 cp -r dist/* docs/
+# GitHub Pages: serve app for 404 so client-side routing works
+cp docs/index.html docs/404.html
 
 # Add and commit changes
 echo "💾 Committing changes..."
@@ -26,5 +29,5 @@ echo "🚀 Pushing to GitHub..."
 git push origin main
 
 echo "✅ Deployment completed!"
-echo "🌐 Site will be available at: https://mariaasatryan.github.io/MarketOS/"
+echo "🌐 Site will be available at: https://mariaasatryan.github.io/marketOS/"
 echo "⏱️  GitHub Pages usually takes 1-2 minutes to update"
