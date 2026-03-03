@@ -1,6 +1,6 @@
 {
-  "name": "MarketOS - Маркетплейс Менеджер",
-  "short_name": "MarketOS",
+  "name": "marketOS - Маркетплейс Менеджер",
+  "short_name": "marketOS",
   "description": "Комплексная система управления маркетплейсами с ИИ-аналитикой",
   "start_url": "/",
   "display": "standalone",
