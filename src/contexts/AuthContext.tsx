@@ -279,7 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: envConfig.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/MarketOS/`,
+          redirectTo: envConfig.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/auth/google/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

@@ -41,7 +41,7 @@ export function validateEnvironment(): EnvConfig {
     VITE_API_TIMEOUT: 30000,
     VITE_CACHE_TTL: 300000,
     VITE_GOOGLE_OAUTH_CLIENT_ID: '',
-    VITE_GOOGLE_REDIRECT_URI: (typeof window !== 'undefined' ? window.location.origin : '') + '/',
+    VITE_GOOGLE_REDIRECT_URI: (typeof window !== 'undefined' ? `${window.location.origin}/auth/google/callback` : '/auth/google/callback'),
     VITE_FEATURE_CALENDAR_AUTO_REMINDER: 'true',
     VITE_FEATURE_SHEETS_PREVIEW: 'true',
     VITE_FEATURE_ADS_MODULE: 'true',
