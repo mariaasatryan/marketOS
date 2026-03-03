@@ -33,7 +33,7 @@ cd dist
 if [ ! -d ".git" ]; then
     echo "🔧 Инициализируем git репозиторий..."
     git init
-    git remote add origin https://github.com/mariaasatryan/MarketOS.git
+    git remote add origin https://github.com/mariaasatryan/marketOS.git
 fi
 
 # Добавляем все файлы
@@ -50,7 +50,7 @@ git push origin HEAD:gh-pages --force
 
 if [ $? -eq 0 ]; then
     echo "✅ Деплой успешно завершен!"
-    echo "🌐 Сайт будет доступен по адресу: https://mariaasatryan.github.io/MarketOS/"
+    echo "🌐 Сайт будет доступен по адресу: https://mariaasatryan.github.io/marketOS/"
 else
     echo "❌ Ошибка при деплое"
     exit 1
