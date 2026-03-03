@@ -17,6 +17,10 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -54,3 +58,39 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+      continue-on-error: true
+
+  update-docs-for-branch-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install and build
+      run: npm ci && npm run build
+
+    - name: Copy dist to docs and add 404
+      run: |
+        rm -rf docs/*
+        cp -r dist/* docs/
+        cp dist/index.html docs/404.html
+        # Remove CNAME so site is served from github.io/marketOS (restore if using custom domain)
+        rm -f docs/CNAME
+
+    - name: Commit and push docs
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add docs/
+        if ! git diff --staged --quiet; then
+          git commit -m "chore: update docs for Pages [skip ci]"
+          git push origin main
+        fi
