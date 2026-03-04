@@ -40,6 +40,12 @@ This stages all changes, commits with a timestamp (if there are changes), and pu
 
 ---
 
+## Auto-push after every commit (optional)
+
+Run **once**: `npm run push-hook`. After that, every `git commit` will auto-push the current branch to origin. You can still use `npm run ship` for add + commit + push in one go.
+
+---
+
 ## If the site doesn’t load (404)
 
 Do the **One-time setup** above (Settings → Pages → Deploy from a branch → **main** → **/docs**).  

@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "deploy": "./scripts/deploy.sh",
     "deploy:auto": "npm run build && cp -r dist/* docs/ && git add docs/ && git commit -m \"Auto-deploy: $(date '+%Y-%m-%d %H:%M:%S')\" && git push origin main",
-    "ship": "git add -A && git status --short && (git diff --staged --quiet || (git commit -m \"Update: $(date '+%Y-%m-%d %H:%M')\" && git push origin main))"
+    "ship": "git add -A && git status --short && (git diff --staged --quiet || (git commit -m \"Update: $(date '+%Y-%m-%d %H:%M')\" && git push origin main))",
+    "push-hook": "bash scripts/install-push-hook.sh"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",

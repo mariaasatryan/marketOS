@@ -21,24 +21,26 @@ So: **code is on GitHub**. **Database = Supabase.** **Site is (or will be) on Gi
 
 The app **is** built to use Supabase. You only need to connect it once.
 
-1. **Create or open a Supabase project**
-   - Go to [supabase.com](https://supabase.com) → sign in → create a project (or use an existing one).
-2. **Get two values from the dashboard**
+**Using a different Supabase project (same account):** Your account can have multiple projects. To use a **different** project, open that project in the dashboard and use **that** project’s URL and anon key in `.env`. Each project has its own URL and keys under **Settings → API**.
+
+1. **Open the Supabase project you want to use**
+   - Go to [supabase.com](https://supabase.com) → sign in → select the project (or create a new one).
+2. **Get two values from that project**
    - **Project URL** (e.g. `https://xxxxx.supabase.co`)  
    - **Anon (public) key**  
-   - In the project: **Settings → API**.
+   - In that project: **Settings → API**.
 3. **Create a `.env` file in the project root** (same folder as `package.json`):
    ```env
    VITE_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
    VITE_SUPABASE_ANON_KEY=your_anon_key_here
    ```
-   Replace with your real URL and key. **Do not commit `.env`** (it’s in `.gitignore`).
-4. **Create the tables**
-   - In Supabase: **SQL Editor**.
+   Use the URL and anon key from the project you want to connect. **Do not commit `.env`** (it’s in `.gitignore`).
+4. **Create the tables in that project**
+   - In that Supabase project: **SQL Editor**.
    - Run the scripts from the `supabase/migrations/` folder (in order: `20250115000001_...`, then `20250115000002_...`, then `20250115000003_...`).
    - If something errors (e.g. “table already exists”), you can skip that part.
 
-After this, the app will use **your** Supabase project (auth + database). No hardcoded keys are left in the repo.
+After this, the app will use **that** Supabase project (auth + database). No hardcoded keys are left in the repo.
 
 ---
 
