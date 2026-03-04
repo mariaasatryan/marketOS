@@ -1,254 +1,100 @@
-import { useState, useEffect } from 'react';
-import { useI18n } from '../contexts/I18nContext';
-import { Package, TrendingUp, ShoppingCart, DollarSign, Users, AlertCircle } from 'lucide-react';
-import { marketplaceService, type MarketplaceIntegration } from '../services/marketplaceService';
-import { RealMarketplaceService, type RealKPIData } from '../services/realMarketplaceService';
-import { SyncButton } from '../components/SyncButton';
+import { MessageSquare, HelpCircle, Inbox, AlertTriangle } from 'lucide-react';
 
+const summaryCards = [
+  { label: 'Open Reviews', value: 8, sub: '3 need reply', color: 'text-blue-400', icon: MessageSquare },
+  { label: 'Open Q&A', value: 4, sub: '2 unanswered', color: 'text-violet-400', icon: HelpCircle },
+  { label: 'Buyer Messages', value: 6, sub: '4 in 24h SLA', color: 'text-cyan-400', icon: Inbox },
+  { label: 'Active Alerts', value: 4, sub: '2 critical', color: 'text-red-400', icon: AlertTriangle },
+];
 
-type Stats = RealKPIData;
+const activityLog = [
+  { time: '2m ago', action: 'Auto-replied to 1★ review', product: 'Bamboo Cutting Board', type: 'blue' },
+  { time: '8m ago', action: 'Answered Q&A question', product: 'Water Bottle 32oz', type: 'blue' },
+  { time: '14m ago', action: 'Buyer message handled', product: 'Yoga Mat', type: 'blue' },
+  { time: '1h ago', action: 'Escalated to human review', product: 'LED Desk Lamp', type: 'yellow' },
+];
+
+const topIssues = [
+  { issue: 'Shipping damage', count: 23, change: '+8' },
+  { issue: 'Lid leaking', count: 18, change: '+12' },
+  { issue: 'Missing parts', count: 7, change: '+3' },
+  { issue: 'Early failure', count: 12, change: '+6' },
+];
 
 export default function Dashboard() {
-  const { t } = useI18n();
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [integrations, setIntegrations] = useState<MarketplaceIntegration[]>([]);
-  const [syncing, setSyncing] = useState(false);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Загружаем интеграции
-      const integrationsData = await marketplaceService.listIntegrations();
-      setIntegrations(integrationsData);
-
-      // Получаем реальные данные через API маркетплейсов
-      const realStats = await RealMarketplaceService.getRealKPIData(integrationsData);
-      setStats(realStats);
-
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : t('dashboard.loadError'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSyncData = async () => {
-    setSyncing(true);
-    try {
-      // Имитируем синхронизацию данных
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Обновляем данные после синхронизации
-      await loadData();
-      
-      // Обновляем статус интеграций
-      const integrationsData = await marketplaceService.listIntegrations();
-      setIntegrations(integrationsData);
-      
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : t('dashboard.syncError'));
-    } finally {
-      setSyncing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
-        <div className="flex items-center gap-3">
-          <AlertCircle className="text-red-600 dark:text-red-400" size={24} />
-          <div>
-            <h3 className="font-semibold text-red-800 dark:text-red-300">{t('dashboard.loadError')}</h3>
-            <p className="text-sm text-red-600 dark:text-red-400 mt-1">{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">{t('dashboard.title')}</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">{t('dashboard.subtitle')}</p>
-        </div>
-        <SyncButton
-          onClick={handleSyncData}
-          isLoading={syncing}
-          variant="primary"
-        >
-          {syncing ? t('dashboard.syncing') : t('dashboard.sync')}
-        </SyncButton>
+    <div>
+      <div className="mb-5">
+        <h1 className="text-xl font-bold text-slate-100 tracking-tight">Good morning 👋</h1>
+        <p className="text-slate-500 text-sm mt-1">Here's what needs your attention today</p>
       </div>
 
-      {integrations.length === 0 ? (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-8 text-center">
-          <Package size={48} className="mx-auto text-red-600 dark:text-red-400 mb-4" />
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">{t('dashboard.connectMarketplace')}</h3>
-          <p className="text-slate-600 dark:text-slate-400 mb-4">
-            {t('dashboard.connectMarketplaceDescription')}
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <StatCard
-              icon={<Package size={24} />}
-              title={t('dashboard.totalProducts')}
-              value={stats?.totalProducts || 0}
-              color="blue"
-            />
-            <StatCard
-              icon={<ShoppingCart size={24} />}
-              title={t('dashboard.orders')}
-              value={stats?.totalOrders || 0}
-              color="green"
-            />
-            <StatCard
-              icon={<DollarSign size={24} />}
-              title={t('dashboard.revenue')}
-              value={`${(stats?.totalRevenue || 0).toLocaleString('ru-RU')} ₽`}
-              color="purple"
-            />
-            <StatCard
-              icon={<TrendingUp size={24} />}
-              title={t('dashboard.avgOrderValue')}
-              value={`${Math.round(stats?.avgOrderValue || 0).toLocaleString('ru-RU')} ₽`}
-              color="orange"
-            />
-            <StatCard
-              icon={<Package size={24} />}
-              title={t('dashboard.stock')}
-              value={stats?.totalStock || 0}
-              color="cyan"
-            />
-            <StatCard
-              icon={<AlertCircle size={24} />}
-              title={t('dashboard.lowStock')}
-              value={stats?.lowStock || 0}
-              color="red"
-            />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        {summaryCards.map((c) => (
+          <div
+            key={c.label}
+            className="bg-slate-800/80 border border-slate-700 rounded-xl p-4 hover:border-slate-600 transition-colors"
+          >
+            <p className={`text-2xl font-extrabold ${c.color}`}>{c.value}</p>
+            <p className="text-sm font-semibold text-slate-200 mt-0.5">{c.label}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{c.sub}</p>
           </div>
+        ))}
+      </div>
 
-          {/* Детализация по маркетплейсам */}
-          {stats && stats.totalProducts > 0 && (
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-4">{t('dashboard.marketplaceBreakdown')}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {stats.byMarketplace.wildberries.products > 0 && (
-                  <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <h3 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">Wildberries</h3>
-                    <div className="space-y-1 text-sm">
-                      <div>{t('dashboard.products')}: {stats.byMarketplace.wildberries.products}</div>
-                      <div>{t('dashboard.orders')}: {stats.byMarketplace.wildberries.orders}</div>
-                      <div>{t('dashboard.revenue')}: {stats.byMarketplace.wildberries.revenue.toLocaleString('ru-RU')} ₽</div>
-                      <div>{t('dashboard.stock')}: {stats.byMarketplace.wildberries.stock}</div>
-                    </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-sm font-semibold text-slate-200">Recent activity</h3>
+            <span className="text-[10px] font-semibold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Live</span>
+          </div>
+          <ul className="space-y-2">
+            {activityLog.map((a, i) => (
+              <li key={i} className="flex items-center gap-3 py-1.5 border-b border-slate-700/80 last:border-0">
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.type === 'blue' ? 'bg-blue-500' : 'bg-amber-500'}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-300">{a.action}</p>
+                  <p className="text-[11px] text-slate-500">{a.product}</p>
+                </div>
+                <span className="text-[10px] text-slate-500 shrink-0">{a.time}</span>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${a.type === 'blue' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                  {a.type === 'blue' ? 'Handled' : 'Escalated'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="space-y-3">
+          <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-slate-200 mb-3">Top issues this week</h3>
+            {topIssues.map((t, i) => (
+              <div key={i} className="flex items-center gap-3 mb-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between text-xs mb-0.5">
+                    <span className="text-slate-300">{t.issue}</span>
+                    <span className={t.change.startsWith('+') ? 'text-red-400' : 'text-slate-500'}>{t.change}</span>
                   </div>
-                )}
-                {stats.byMarketplace.ozon.products > 0 && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Ozon</h3>
-                    <div className="space-y-1 text-sm">
-                      <div>{t('dashboard.products')}: {stats.byMarketplace.ozon.products}</div>
-                      <div>{t('dashboard.orders')}: {stats.byMarketplace.ozon.orders}</div>
-                      <div>{t('dashboard.revenue')}: {stats.byMarketplace.ozon.revenue.toLocaleString('ru-RU')} ₽</div>
-                      <div>{t('dashboard.stock')}: {stats.byMarketplace.ozon.stock}</div>
-                    </div>
+                  <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(100, (t.count / 23) * 100)}%` }} />
                   </div>
-                )}
-                {stats.byMarketplace.ym.products > 0 && (
-                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                    <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-2">Яндекс.Маркет</h3>
-                    <div className="space-y-1 text-sm">
-                      <div>{t('dashboard.products')}: {stats.byMarketplace.ym.products}</div>
-                      <div>{t('dashboard.orders')}: {stats.byMarketplace.ym.orders}</div>
-                      <div>{t('dashboard.revenue')}: {stats.byMarketplace.ym.revenue.toLocaleString('ru-RU')} ₽</div>
-                      <div>{t('dashboard.stock')}: {stats.byMarketplace.ym.stock}</div>
-                    </div>
-                  </div>
-                )}
+                </div>
+                <span className="text-xs font-bold text-slate-400 w-6 text-right">{t.count}</span>
+              </div>
+            ))}
+          </div>
+          <div className="bg-red-950/30 border border-red-800/80 rounded-xl p-4">
+            <div className="flex gap-3">
+              <span className="text-xl">🚨</span>
+              <div>
+                <p className="text-sm font-bold text-red-400">Negative review streak</p>
+                <p className="text-xs text-red-300/90 mt-0.5">Bamboo Cutting Board Set — 3 negative reviews in the last 48h</p>
+                <a href="#alerts" className="inline-block mt-2 text-[11px] font-semibold text-red-400 hover:underline">View alert →</a>
               </div>
             </div>
-          )}
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-4">{t('dashboard.connectedMarketplaces')}</h2>
-            <div className="space-y-3">
-              {integrations.map((integration) => (
-                <div
-                  key={integration.id}
-                  className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
-                      <Users size={20} className="text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-slate-800 dark:text-white">
-                        {integration.marketplace === 'wildberries' ? t('marketplaces.wildberries') :
-                         integration.marketplace === 'ozon' ? t('marketplaces.ozon') : t('marketplaces.yandexMarket')}
-                      </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {integration.last_sync_at
-                          ? `${t('dashboard.syncedAt')}: ${new Date(integration.last_sync_at).toLocaleString('ru-RU')}`
-                          : t('dashboard.waitingForSync')}
-                      </p>
-                    </div>
-                  </div>
-                  {integration.last_sync_status === 'success' ? (
-                    <span className="text-green-600 dark:text-green-400 text-sm font-medium">{t('dashboard.active')}</span>
-                  ) : integration.last_sync_status === 'error' ? (
-                    <span className="text-red-600 dark:text-red-400 text-sm font-medium">{t('dashboard.error')}</span>
-                  ) : (
-                    <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">{t('dashboard.notChecked')}</span>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function StatCard({ icon, title, value, color }: { icon: React.ReactNode; title: string; value: string | number; color: string }) {
-  const colorClasses: Record<string, string> = {
-    blue: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
-    green: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
-    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-    orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
-    cyan: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400',
-    red: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
-  };
-
-  return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
-          {icon}
         </div>
       </div>
-      <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{title}</h3>
-      <p className="text-2xl font-bold text-slate-800 dark:text-white">{value}</p>
     </div>
   );
 }

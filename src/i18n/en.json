@@ -76,7 +76,9 @@
     "noReviewsDescription": "Reviews will appear here when received"
   },
   "nav": {
-    "dashboard": "Overview",
+    "dashboard": "Dashboard",
+    "inbox": "Inbox",
+    "alerts": "Alerts",
     "products": "Products",
     "reviews": "Reviews",
     "advertising": "Advertising",

@@ -76,7 +76,9 @@
     "noReviewsDescription": "Отзывы появятся здесь после получения"
   },
   "nav": {
-    "dashboard": "Обзорная панель",
+    "dashboard": "Панель",
+    "inbox": "Входящие",
+    "alerts": "Оповещения",
     "products": "Товары",
     "reviews": "Отзывы",
     "advertising": "Реклама",
